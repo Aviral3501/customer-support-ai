@@ -1,0 +1,4 @@
+configurationset:
+  - configuration:
+      name: postgresql_config
+      uri: postgresql://ep-lingering-truth-a1q5704o.ap-southeast-1.aws.neon.tech/intercom-clone?user=intercom-clone-owner&password=YUAWj6i9SMRC
