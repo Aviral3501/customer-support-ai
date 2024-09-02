@@ -25,7 +25,7 @@ const Avatar = ({ seed, className }: { seed: string; className?: string }) => {
         alt="Assistly Logo"
         width={50}
         height={50}
-        className="rounded-full"
+        className={`rounded-full md:w-[70px] md:h-[70px] ${className}`}
       />
     </div>
   );

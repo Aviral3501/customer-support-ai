@@ -1,4 +1,5 @@
 import {ApolloClient,DefaultOptions,InMemoryCache,createHttpLink} from "@apollo/client";
+// Client side ApolloClient
 
 
 // base url in  dev mode and production mode
@@ -6,7 +7,7 @@ export const BASE_URL = process.env.NODE_ENV !== "development" ? `https://${proc
 
 // create http link
 const httpLink = createHttpLink({
-    uri: `${BASE_URL}/graphql`, //point to the new api route
+    uri: `${BASE_URL}/api/graphql`, //point to the new api route
 });
 
 // disable the caching in apollo client
