@@ -3,6 +3,9 @@ import Avatar from '@/components/Avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { BASE_URL } from '@/graphql/apolloClient';
+import { GET_CHATBOT_BY_ID } from '@/graphql/queries/queries';
+import { GetChatbotByIdResponse,GetChatbotByIdVariables } from '@/types/types';
+import { useQuery } from '@apollo/client';
 import { Copy } from 'lucide-react';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
@@ -11,11 +14,27 @@ import { toast } from 'sonner';
 const EditChatbot = ({params:{id}}:{params:{id:string}}) => {
   const [url,setUrl] = useState<string>("");
   const [chatbotName,setChatbotName] = useState<string>("");
+  const [newCharacteristic,setNewCharacteristic]=useState<string>("");
+
+    // query 
+    const {data,loading,error} = useQuery<GetChatbotByIdResponse,GetChatbotByIdVariables>(
+      GET_CHATBOT_BY_ID,{
+        variables:{id}
+    })
+
+    useEffect(()=>{
+      if(data){
+        setChatbotName(data.chatbots.name);
+      }
+
+    },[data])
 
   useEffect(()=>{
     const url = `${BASE_URL}/chatbot/${id}`;
     setUrl(url);
   },[id])
+
+
 
   console.log(id);
   return (
@@ -50,7 +69,44 @@ const EditChatbot = ({params:{id}}:{params:{id:string}}) => {
           >
             X
           </Button>
-          <Avatar seed={chatbotName}/>
+        <div className='flex space-x-4 mt-5'>
+        <Avatar seed={chatbotName} className='h-[90px] w-[90px]'/>
+          <form
+          // onSubmit={handleUpdateChatbot}
+          className='flex flex-1 space-x-2 items-center'
+          >
+            <Input placeholder={chatbotName} value={chatbotName} onChange={(e)=>setChatbotName(e.target.value)} className='w-full border-none bg-transparent text-xl font-bold'/>
+            <Button type="submit" disabled={!chatbotName} className=''>
+              Update
+            </Button>
+          </form>
+        </div>
+
+        <h2 className='text-xl font-bold mt-10'>
+          {"Here's what your AI knows..."}
+          </h2>
+          <p className='text-lg'>
+            Your chatbot is equipped with the following information to assist you in
+            your conversations with your customers & users.
+          </p>
+
+          <div>
+            <form className='mt-2 flex flex-1 justify-center gap-x-2'>
+              <Input
+              type='text'
+              placeholder='Example: Customer ask for prices, provide pricing: www.example.com/pricing' 
+              value={newCharacteristic}
+              onChange={(e)=>setNewCharacteristic(e.target.value)}
+              className=''/>
+              <Button 
+              type='submit'
+               disabled={!newCharacteristic}
+               className=''
+               >Add
+               </Button>
+
+            </form>
+          </div>
         </section>
        
     </div>
