@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import ApolloProviderWrapper from "@/components/ApolloProvider";
+import { Toaster } from "sonner";
+
 
 export const metadata: Metadata = {
   title: "Assistly",
@@ -17,9 +19,13 @@ export default function RootLayout({
   return (
    <ApolloProviderWrapper>
      <ClerkProvider>
-      <html lang="en">
-        <body className="min-h-screen">{children}</body>
+     <html lang="en">
+        <body className="min-h-screen">
+          {children}
+         <Toaster position="bottom-center"/>
+        </body>
       </html>
+     
     </ClerkProvider>
    </ApolloProviderWrapper>
   );

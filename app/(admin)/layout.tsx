@@ -12,7 +12,7 @@ function AdminLayout({children}:{children:React.ReactNode}) {
             {/* sidebar */}
             <Sidebar/>
 
-            <div className='flex flex-1 justify-center lg:justify-start items-start max-w-5xl mx-auto bg-red-200 w-full'>
+            <div className='flex flex-1 justify-center lg:justify-start items-start max-w-5xl mx-auto bg-slate-200 w-full'>
                 {/* dashboard */}
                 {children}
             </div>
