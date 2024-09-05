@@ -7,5 +7,19 @@ export const CREATE_CHATBOT = gql`
       id
       name
     }
+  }`;
+
+export const REMOVE_CHARACTERISTIC = gql`
+mutation RemoveCharacteristic($characteristicId:Int!){
+  deleteChatbot_characteristics(id:$characteristicId){
+    id
+    #Add other fields to return after removal
   }
-`;
+}`;
+
+export const DELETE_CHATBOT = gql`
+mutation DeleteChatbot($id:Int!){
+  deleteChatbot(id:$id){
+    id
+  }
+}`;

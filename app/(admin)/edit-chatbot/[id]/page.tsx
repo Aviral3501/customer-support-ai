@@ -1,11 +1,13 @@
 "use client";
 import Avatar from '@/components/Avatar';
+import Characteristic from '@/components/Characteristic';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { BASE_URL } from '@/graphql/apolloClient';
+import { DELETE_CHATBOT } from '@/graphql/mutations/mutations';
 import { GET_CHATBOT_BY_ID } from '@/graphql/queries/queries';
 import { GetChatbotByIdResponse,GetChatbotByIdVariables } from '@/types/types';
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { Copy } from 'lucide-react';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
@@ -16,11 +18,19 @@ const EditChatbot = ({params:{id}}:{params:{id:string}}) => {
   const [chatbotName,setChatbotName] = useState<string>("");
   const [newCharacteristic,setNewCharacteristic]=useState<string>("");
 
-    // query 
+    // query to get the chatbot
     const {data,loading,error} = useQuery<GetChatbotByIdResponse,GetChatbotByIdVariables>(
       GET_CHATBOT_BY_ID,{
         variables:{id}
     })
+
+  // delete the chatbot
+  const [deleteChatbot] = useMutation(DELETE_CHATBOT,{
+    refetchQueries:["GetChatbotByID"],
+    // refetch the chatbots after deleting
+    awaitRefetchQueries:true,
+  })
+
 
     useEffect(()=>{
       if(data){
@@ -38,7 +48,7 @@ const EditChatbot = ({params:{id}}:{params:{id:string}}) => {
 
   console.log(id);
   return (
-    <div className='px-0 md:p-10'>
+    <div className='px-5 md:p-10'>
         <div className='md:sticky md:top-0 z-50 sm:max-w-sm  ml-auto space-y-2 md:border p-5 rounded-b-lg shadow-2xl md:rounded-lg bg-[#4ca2ee]'>
           <h2 className='text-white text-sm font-bold'>Link to Chat</h2>
           <p className='text-sm italic text-white'>
@@ -91,7 +101,9 @@ const EditChatbot = ({params:{id}}:{params:{id:string}}) => {
           </p>
 
           <div>
-            <form className='mt-2 flex flex-1 justify-center gap-x-2'>
+            <form className='mt-2 flex flex-1 justify-center gap-x-2' 
+            // onSubmit={}
+            >
               <Input
               type='text'
               placeholder='Example: Customer ask for prices, provide pricing: www.example.com/pricing' 
@@ -104,8 +116,18 @@ const EditChatbot = ({params:{id}}:{params:{id:string}}) => {
                className=''
                >Add
                </Button>
-
             </form>
+
+            <ul className='flex flex-wrap-reverse gap-5'>
+              {data?.chatbots.chatbot_characteristics.map((charactersitic)=>(
+
+               <Characteristic
+                key={charactersitic.id}
+                characteristic={charactersitic}
+                />
+              ))}
+
+            </ul>
           </div>
         </section>
        
