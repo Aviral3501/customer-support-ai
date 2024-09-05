@@ -44,6 +44,24 @@ const EditChatbot = ({params:{id}}:{params:{id:string}}) => {
     setUrl(url);
   },[id])
 
+  const handleDelete = async(id:string) =>{
+    const isConfirmed = window.confirm("Are you sure you want to delete this chatbot");
+    if(!isConfirmed) return;
+    // if confirmed
+    try {
+      const promise = deleteChatbot({variables:{id}});
+      toast.promise(promise,{
+        loading:"Deleting...",
+        success:"Chatbot deleted",
+        error:"Failed to delete chatbot",
+      })
+      
+    } catch (error) {
+      console.error(error);
+      console.error("Error in deleting the chatbot");
+    }
+  }
+
 
 
   console.log(id);
