@@ -19,7 +19,19 @@ mutation RemoveCharacteristic($characteristicId:Int!){
 
 export const DELETE_CHATBOT = gql`
 mutation DeleteChatbot($id:Int!){
-  deleteChatbot(id:$id){
+  deleteChatbots(id:$id){
     id
+    # only id will be the response
   }
 }`;
+
+
+export const ADD_CHARACTERISTIC = gql`
+mutation AddCharacteristic($chatbotId:Int!,$content:String!){
+  insertChatbot_characteristics(chatbot_id:$chatbotId,content:$content){
+    id
+    content
+    created_at
+    #add extra fields
+  }
+}`

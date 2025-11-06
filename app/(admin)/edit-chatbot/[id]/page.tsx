@@ -5,7 +5,7 @@ import ConfirmationDialog from '@/components/ConfirmationDialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { BASE_URL } from '@/graphql/apolloClient';
-import { DELETE_CHATBOT } from '@/graphql/mutations/mutations';
+import { ADD_CHARACTERISTIC, DELETE_CHATBOT } from '@/graphql/mutations/mutations';
 import { GET_CHATBOT_BY_ID } from '@/graphql/queries/queries';
 import { GetChatbotByIdResponse,GetChatbotByIdVariables } from '@/types/types';
 import { useMutation, useQuery } from '@apollo/client';
@@ -17,6 +17,8 @@ import { toast } from 'sonner';
 
 
   const EditChatbot = ({ params: { id } }: { params: { id: string } }) => {
+
+    const idInt = Number(id); // or parseInt(id, 10)
     const [url, setUrl] = useState<string>("");
     const [chatbotName, setChatbotName] = useState<string>("");
     const [newCharacteristic, setNewCharacteristic] = useState<string>("");
@@ -30,10 +32,16 @@ import { toast } from 'sonner';
     >(GET_CHATBOT_BY_ID, {
       variables: { id },
     });
+
+    //add the characteristic
+    const [addCharacteristic]=useMutation(ADD_CHARACTERISTIC ,{
+      refetchQueries:["GetChatbotById"],
+      awaitRefetchQueries:true
+    })
   
     // delete the chatbot
     const [deleteChatbot] = useMutation(DELETE_CHATBOT, {
-      refetchQueries: ["GetChatbotByID"],
+      refetchQueries: ["GetChatbotById"],
       // refetch the chatbots after deleting
       awaitRefetchQueries: true,
     });
@@ -53,7 +61,8 @@ import { toast } from 'sonner';
   
     const handleDeleteChatbot = async () => {
       try {
-        const promise = deleteChatbot({ variables: { id } });
+        const promise = deleteChatbot({ variables: { id: Number(id) } });
+        console.log(promise)
         toast.promise(promise, {
           loading: "Deleting...",
           success: "Chatbot deleted",
@@ -64,6 +73,31 @@ import { toast } from 'sonner';
         console.error("Error in deleting the chatbot", error);
       }
     };
+
+    const handleAddCharacteristic = async (content:string) =>{
+      try {
+        const promise = addCharacteristic({
+          variables:{
+            chatbotId:Number(id),
+            content,
+          }
+        })
+
+        toast.promise(promise, {
+          loading: "Adding...",
+          success: "Characteristic added successfully",
+          error: "Failed to add characterisatic",
+        });
+
+        console.log(promise)
+        
+      } catch (error) {
+        console.error("Error in adding characteristic",error)
+        
+      }
+
+
+    }
     
   
     if (loading) {
@@ -149,7 +183,11 @@ import { toast } from 'sonner';
           <div>
             <form
               className="mt-2 flex flex-1 justify-center gap-x-2"
-              // onSubmit={}
+              onSubmit= {e => {
+                e.preventDefault();
+                handleAddCharacteristic(newCharacteristic);
+                setNewCharacteristic("");
+              }}
             >
               <Input
                 type="text"
@@ -202,7 +240,7 @@ import { toast } from 'sonner';
 
 //   // delete the chatbot
 //   const [deleteChatbot] = useMutation(DELETE_CHATBOT,{
-//     refetchQueries:["GetChatbotByID"],
+//     refetchQueries:["GetChatbotById"],
 //     // refetch the chatbots after deleting
 //     awaitRefetchQueries:true,
 //   })
