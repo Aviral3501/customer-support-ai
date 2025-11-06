@@ -1,7 +1,8 @@
 import {ApolloClient,DefaultOptions,HttpLink,InMemoryCache,createHttpLink} from "@apollo/client";
 // server side client ApolloClient component
 
-// disable the caching in apollo client
+
+// disable the caching in apollo client (on the server side)
 const defaultOptions: DefaultOptions = {
     watchQuery: {
       fetchPolicy: "no-cache",
