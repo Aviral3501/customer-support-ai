@@ -26,6 +26,9 @@ import { toast } from 'sonner';
     const [showDialog, setShowDialog] = useState(false);
     const client = useApolloClient();
 
+    const [isDeleting, setIsDeleting] = useState(false);//state to maintiain the status of deletion
+
+
 
 
     // query to get the chatbot
@@ -57,7 +60,7 @@ import { toast } from 'sonner';
   
     useEffect(() => {
       if (data) {
-        setChatbotName(data.chatbots.name);
+        setChatbotName(data?.chatbots?.name);
       }
     }, [data]);
   
@@ -66,9 +69,10 @@ import { toast } from 'sonner';
       setUrl(url);
     }, [id]);
   
-  
     const handleDeleteChatbot = async () => {
       try {
+        setIsDeleting(true); // show loader immediately
+    
         const promise = deleteChatbot({ variables: { id: Number(id) } });
     
         toast.promise(promise, {
@@ -80,19 +84,21 @@ import { toast } from 'sonner';
         const { data } = await promise;
     
         if (data) {
-          // ✅ Clear Apollo cache after deletion
+          // Wait for refetch to finish
           await client.refetchQueries({ include: ["GetChatbotsByUser"] });
           await client.resetStore();
     
-          // ✅ Redirect to /view-chatbots
+          //  Redirect
           window.location.href = "/view-chatbots";
         }
-    
-        setShowDialog(false);
       } catch (error) {
         console.error("Error in deleting the chatbot", error);
+      } finally {
+        setIsDeleting(false); // hide loader after everything
+        setShowDialog(false);
       }
     };
+    
     
 
     const handleAddCharacteristic = async (content:string) =>{
@@ -138,7 +144,7 @@ import { toast } from 'sonner';
     }
     
   
-    if (loading) {
+    if (loading || isDeleting) {
       return (
         <div className="mx-auto animate-spin p-10">
           <Avatar seed="" />
