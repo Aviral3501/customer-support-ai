@@ -8,7 +8,7 @@ import { BASE_URL } from '@/graphql/apolloClient';
 import { ADD_CHARACTERISTIC, DELETE_CHATBOT, UPDATE_CHATBOT } from '@/graphql/mutations/mutations';
 import { GET_CHATBOT_BY_ID } from '@/graphql/queries/queries';
 import { GetChatbotByIdResponse,GetChatbotByIdVariables } from '@/types/types';
-import { useMutation, useQuery } from '@apollo/client';
+import { useApolloClient, useMutation, useQuery } from '@apollo/client';
 import { Copy } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -22,9 +22,12 @@ import { toast } from 'sonner';
     const [url, setUrl] = useState<string>("");
     const [chatbotName, setChatbotName] = useState<string>("");
     const [newCharacteristic, setNewCharacteristic] = useState<string>("");
-  
+
     const [showDialog, setShowDialog] = useState(false);
-  
+    const client = useApolloClient();
+
+
+
     // query to get the chatbot
     const { data, loading, error } = useQuery<
       GetChatbotByIdResponse,
@@ -64,21 +67,33 @@ import { toast } from 'sonner';
     }, [id]);
   
   
-  
     const handleDeleteChatbot = async () => {
       try {
         const promise = deleteChatbot({ variables: { id: Number(id) } });
-        console.log(promise)
+    
         toast.promise(promise, {
           loading: "Deleting...",
           success: "Chatbot deleted",
           error: "Failed to delete chatbot",
         });
+    
+        const { data } = await promise;
+    
+        if (data) {
+          // ✅ Clear Apollo cache after deletion
+          await client.refetchQueries({ include: ["GetChatbotsByUser"] });
+          await client.resetStore();
+    
+          // ✅ Redirect to /view-chatbots
+          window.location.href = "/view-chatbots";
+        }
+    
         setShowDialog(false);
       } catch (error) {
         console.error("Error in deleting the chatbot", error);
       }
     };
+    
 
     const handleAddCharacteristic = async (content:string) =>{
       try {
