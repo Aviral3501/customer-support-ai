@@ -77,11 +77,14 @@ import { toast } from 'sonner';
     const handleAddCharacteristic = async (content:string) =>{
       try {
         const promise = addCharacteristic({
-          variables:{
-            chatbotId:Number(id),
+          variables: {
+            chatbotId: Number(id),
             content,
+            created_at: new Date().toISOString(),
           }
         })
+          
+        
 
         toast.promise(promise, {
           loading: "Adding...",
@@ -182,7 +185,7 @@ import { toast } from 'sonner';
   
           <div>
             <form
-              className="mt-2 flex flex-1 justify-center gap-x-2"
+              className="mt-2 flex flex-1 justify-center gap-x-2 mb-4"
               onSubmit= {e => {
                 e.preventDefault();
                 handleAddCharacteristic(newCharacteristic);
@@ -201,7 +204,8 @@ import { toast } from 'sonner';
               </Button>
             </form>
   
-            <ul className="flex flex-wrap-reverse gap-5">
+              {/* latest first - wrap-reverse */}
+            <ul className="flex flex-wrap-reverse gap-5"> 
               {data?.chatbots?.chatbot_characteristics?.map((charactersitic) => (
                 <Characteristic
                   key={charactersitic.id}
