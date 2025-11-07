@@ -5,14 +5,14 @@ import ConfirmationDialog from '@/components/ConfirmationDialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { BASE_URL } from '@/graphql/apolloClient';
-import { ADD_CHARACTERISTIC, DELETE_CHATBOT } from '@/graphql/mutations/mutations';
+import { ADD_CHARACTERISTIC, DELETE_CHATBOT, UPDATE_CHATBOT } from '@/graphql/mutations/mutations';
 import { GET_CHATBOT_BY_ID } from '@/graphql/queries/queries';
 import { GetChatbotByIdResponse,GetChatbotByIdVariables } from '@/types/types';
 import { useMutation, useQuery } from '@apollo/client';
 import { Copy } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { FormEvent, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 
@@ -45,6 +45,12 @@ import { toast } from 'sonner';
       // refetch the chatbots after deleting
       awaitRefetchQueries: true,
     });
+
+    // update chatbot mutation
+    const [updateChatbot] = useMutation(UPDATE_CHATBOT,{
+      refetchQueries:["GetChatbotById"],
+      awaitRefetchQueries:true
+    })
   
     useEffect(() => {
       if (data) {
@@ -83,22 +89,36 @@ import { toast } from 'sonner';
             created_at: new Date().toISOString(),
           }
         })
-          
-        
-
         toast.promise(promise, {
           loading: "Adding...",
           success: "Characteristic added successfully",
           error: "Failed to add characterisatic",
         });
+        // console.log(promise)
+      } catch (error) {
+        console.error("Error in adding characteristic",error) 
+      }
+    }
 
-        console.log(promise)
+    const handleUpdateChatbot = async(e:FormEvent<HTMLFormElement>) =>{
+      e.preventDefault();
+      try {
+        const promise = updateChatbot({
+          variables:{
+            id,
+            name:chatbotName,
+          }
+        })
+
+        toast.promise(promise,{
+          loading:"Updating...",
+          success:"Chatbot name succesfully updated!",
+          error:"Failed to update the chatbot"
+        })
         
       } catch (error) {
-        console.error("Error in adding characteristic",error)
-        
+        console.error("Error in updating chatbot :",error)
       }
-
 
     }
     
@@ -158,7 +178,7 @@ import { toast } from 'sonner';
           <div className="flex space-x-4 mt-5">
             <Avatar seed={chatbotName} className="h-[90px] w-[90px]" />
             <form
-              // onSubmit={handleUpdateChatbot}
+              onSubmit={handleUpdateChatbot}
               className="flex flex-1 space-x-2 items-center"
             >
               <Input

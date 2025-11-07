@@ -40,7 +40,9 @@ const Characteristic = ({characteristic}:{characteristic:ChatbotCharacteristicti
 
 
   return (
-    <li className="relative px-10 py-6 bg-white border rounded-md">
+    <li
+    key={characteristic.id} 
+    className="relative px-10 py-6 bg-white border rounded-md">
       {characteristic.content}
 
 
