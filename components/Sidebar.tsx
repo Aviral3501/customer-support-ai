@@ -35,7 +35,7 @@ const Sidebar = () => {
         </li>
         <li className="flex-1">
           <Link
-            href={'/review-session'}
+            href={'/review-sessions'}
             className=" bg-blue-500/80 hover:bg-blue-500 text-white text-center py-3 px-4 rounded-md flex justify-center items-center gap-2"
           >
             
