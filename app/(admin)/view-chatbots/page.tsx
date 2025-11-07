@@ -54,7 +54,7 @@ const chatbotsByUser = data?.chatbotsByUser ?? [];
       <ul>
         {sortedChatbotsByUser.map((chatbot) => (
           <Link key={chatbot.id} href={`/edit-chatbot/${chatbot.id}`}>
-            <li className="relative">
+            <li className="relative px-10 py-6 border rounded-md max-w-3xl bg-white">
               <div>
                 <div className="flex items-center space-x-4">
                   <Avatar seed={chatbot.name} />
@@ -66,6 +66,28 @@ const chatbotsByUser = data?.chatbotsByUser ?? [];
                 </p>
                
               </div>
+              
+              <hr className="mt-2"/>
+
+              <div className="grid grid-cols-2 gap-10 md:gap-5 p-55">
+                <h3 className="italic">Characterictics:</h3>
+                <ul className="text-xs">
+                    {chatbot.chatbot_characteristics.length ==0  && (
+                        <p className="font-normal">No characteristics Added yet!</p>
+                    )}
+                    {/* {console.log(chatbot.chatbot_characteristics.length) as any} */}
+
+                    {chatbot.chatbot_characteristics.map((characteristic)=>(
+                        <li key={characteristic.id}
+                        className="list-disc break-words">
+                            {characteristic.content}
+                        </li>
+
+                    ))}
+                </ul>
+
+              </div>
+
             </li>
           </Link>
         ))}
