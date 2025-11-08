@@ -20,7 +20,7 @@ export default function RootLayout({
    <ApolloProviderWrapper>
      <ClerkProvider>
      <html lang="en">
-        <body className="min-h-screen">
+        <body className="min-h-screen w-full">
           {children}
          <Toaster position="top-right"/> 
         </body>
