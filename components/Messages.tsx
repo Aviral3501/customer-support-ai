@@ -2,9 +2,11 @@
 
 import { Message } from "@/types/types";
 import { usePathname } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Avatar from "./Avatar";
 import { UserCircle } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 const Messages = ({
   messages,
@@ -17,10 +19,20 @@ const Messages = ({
   const isReviewsPage = path.includes("review-sessions");
   const [mounted, setMounted] = useState(false);
 
+  const ref = useRef<HTMLDivElement>(null);
+
   // ✅ Ensures timestamps only render after client mount
   useEffect(() => {
     setMounted(true);
   }, []);
+
+//   auto scroll to the botton as the user types 
+  useEffect(()=>{
+    if(ref.current){
+        ref.current.scrollIntoView({behavior:"smooth"})
+    }
+
+  },[messages])
 
   return (
     <div
@@ -64,7 +76,84 @@ const Messages = ({
                   : "chat-bubble-secondary bg-gray-200 text-black"
               }`}
             >
-              {message.content || "Empty message"}
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  // Paragraphs
+                  p: ({ node, ...props }) => (
+                    <p
+                      {...props}
+                      className={`break-words whitespace-break-spaces leading-relaxed mb-5 ${message.content ==="Thinking..." && "animate-pulse"} ${isSender?"text-white":"text-black"}`}
+                    />
+                  ),
+
+                  // Headings
+                  h1: ({ node, ...props }) => (
+                    <h1
+                      {...props}
+                      className="text-2xl font-bold mb-5 text-gray-900"
+                    />
+                  ),
+                  h2: ({ node, ...props }) => (
+                    <h2
+                      {...props}
+                      className="text-xl font-semibold mb-5 text-gray-900"
+                    />
+                  ),
+                  h3: ({ node, ...props }) => (
+                    <h3
+                      {...props}
+                      className="text-lg font-semibold mb-5 text-gray-900"
+                    />
+                  ),
+
+                  // Lists
+                  ul: ({ node, ...props }) => (
+                    <ul
+                      {...props}
+                      className="list-disc break-words list-inside ml-5 mb-5 space-y-1"
+                    />
+                  ),
+                  ol: ({ node, ...props }) => (
+                    <ol
+                      {...props}
+                      className="list-decimal break-words list-inside ml-5 mb-5 space-y-1"
+                    />
+                  ),
+
+                  // Links
+                  a: ({ node, ...props }) => (
+                    <a
+                      {...props}
+                      className="font-bold break-words underline hover:text-blue-400"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    />
+                  ),
+
+                  // Tables
+                  table: ({ node, ...props }) => (
+                    <table
+                      {...props}
+                      className="table-auto border-separate border-spacing-4 border-2 border-gray-300 mb-5 w-full"
+                    />
+                  ),
+                  th: ({ node, ...props }) => (
+                    <th
+                      {...props}
+                      className="px-3 py-2 bg-gray-100 font-semibold text-left underline"
+                    />
+                  ),
+                  td: ({ node, ...props }) => (
+                    <td
+                      {...props}
+                      className="px-3 py-2 text-gray-700"
+                    />
+                  ),
+                }}
+              >
+                {message.content || "Empty message"}
+              </ReactMarkdown>
             </div>
 
             {/* Timestamp (only on review page) */}
@@ -77,6 +166,8 @@ const Messages = ({
           </div>
         );
       })}
+
+      <div ref={ref}></div>
     </div>
   );
 };
