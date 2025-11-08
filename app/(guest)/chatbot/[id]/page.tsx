@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,11 +9,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Message } from "@/types/types";
+import { GetChatbotByIdResponse, GetChatbotByIdVariables, Message, MessagesByChatSessionIdResponse, MessagesByChatSessionIdVariables } from "@/types/types";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import startNewChat from "@/lib/server/startNewChat";
+import Avatar from "@/components/Avatar";
+import { useQuery } from "@apollo/client";
+import { GET_CHATBOT_BY_ID, GET_MESSAGES_BY_CHAT_SESSION_ID } from "@/graphql/queries/queries";
+import { Variable } from "lucide-react";
+import Messages from "@/components/Messages";
 
 const ChatbotPage = ({ params: { id } }: { params: { id: string } }) => {
   const [name, setName] = useState("");
@@ -22,6 +27,40 @@ const ChatbotPage = ({ params: { id } }: { params: { id: string } }) => {
   const [chatId, setChatId] = useState(0);
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
+
+
+//   get the chatbot data
+  const {data:chatbotData} = useQuery<GetChatbotByIdResponse,GetChatbotByIdVariables>(
+    GET_CHATBOT_BY_ID,{
+        variables:{id}
+    }
+  )
+
+//   get the messages by chatbot_sessiosn_id
+
+const {
+    loading:loadingQuery,
+    error,
+    data,
+} = useQuery<MessagesByChatSessionIdResponse,MessagesByChatSessionIdVariables>(
+    GET_MESSAGES_BY_CHAT_SESSION_ID,{
+        variables:{
+            chat_session_id:chatId
+        },
+        skip:!chatId,
+    }
+)
+
+
+useEffect(()=>{
+    if(data){
+        setMessages(data.chat_sessions.messages)
+    }
+
+
+},[data])
+
+
 
   const handleInformatoinSubmit = async(e:React.FormEvent) =>{
     e.preventDefault();
@@ -33,6 +72,8 @@ const ChatbotPage = ({ params: { id } }: { params: { id: string } }) => {
     setLoading(false);
     setIsOpen(false);
   }
+
+
 
   return (
     <div className="w-full flex bg-gray-100">
@@ -85,10 +126,32 @@ const ChatbotPage = ({ params: { id } }: { params: { id: string } }) => {
         </DialogContent>
       </Dialog>
 
-      
+      {/* the chatbot ui here  */}
+
+      <div className="flex flex-col w-full max-w-3xl mx-auto bg-white md:rounded-l-lg shadow-2xl md:mt-10">
+        <div className="pb-4 border-b sticky top-0 z-50 bg-[#4D7DFB] py-5 px-10 text-white md:rounded-t-lg flex  items-center space-x-4">
+            <Avatar
+            seed={chatbotData?.chatbots.name as string}
+            className="h-12 w-12 bg-white rounded-full border-2 border-white"/>
+
+            <div>
+                <h1 className="truncate text-lg">{chatbotData?.chatbots.name}</h1>
+                <p className="text-sm text-gray-300">
+                    Typically Replies Instantly
+                </p>
+            </div>
+        </div>
 
 
+        {/* All the messages  */}
 
+        <Messages
+            messages={messages}
+            chatbotName={chatbotData?.chatbots.name!}
+            />
+
+
+      </div>
     </div>
   );
 };
