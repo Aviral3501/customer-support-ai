@@ -2,7 +2,7 @@
 
 import { Message } from "@/types/types";
 import { usePathname } from "next/navigation";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Avatar from "./Avatar";
 import { UserCircle } from "lucide-react";
 
@@ -15,12 +15,23 @@ const Messages = ({
 }) => {
   const path = usePathname();
   const isReviewsPage = path.includes("review-sessions");
+  const [mounted, setMounted] = useState(false);
+
+  // ✅ Ensures timestamps only render after client mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
-    <div className=" flex-1  overflow-y-auto space-y-10 py-10 px-5 bg-white rounded-lg">
+    <div
+      className="flex-1 overflow-y-auto space-y-10 py-10 px-5 bg-white rounded-lg"
+      suppressHydrationWarning
+    >
       {messages.map((message) => {
         const isSender = message.sender !== "user";
-        const timestamp = new Date(message.created_at).toLocaleString();
+        const timestamp = mounted
+          ? new Date(message.created_at).toLocaleString()
+          : ""; // avoid mismatch before hydration
 
         return (
           <div
@@ -57,7 +68,7 @@ const Messages = ({
             </div>
 
             {/* Timestamp (only on review page) */}
-            {isReviewsPage && (
+            {isReviewsPage && mounted && (
               <div className="chat-footer text-[10px] text-gray-500 mt-1">
                 {isSender ? "AI • " : "You • "}
                 {timestamp}
