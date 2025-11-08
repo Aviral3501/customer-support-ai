@@ -9,7 +9,7 @@ const Header = () => {
     <header className="bg-white shadow-sm flex justify-between p-5">
       <Link href={"/"} className="flex font-thin items-center text-4xl">
         {/* Logo-Avatar-Assistly */}
-        <Avatar seed="AI Agent -06" className="mr-2" />
+        <Avatar seed="loading sA" className="mr-2" />
 
         <div>
           <h1 className="font-semibold text-black">Assistly</h1>
