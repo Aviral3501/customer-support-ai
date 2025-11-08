@@ -1,15 +1,21 @@
-"use client";
-
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import React from "react";
-import { usePathname } from "next/navigation";
+import { redirect } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
+import AdminContentWrapper from "@/components/AdminContentWrapper";
 
-function AdminLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
+export default async function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { userId } = await auth();
 
-  // Check if current route is the homepage
-  const isHomePage = pathname === "/";
+  // 🔒 Server-side auth check
+  if (!userId) {
+    redirect("/login");
+  }
 
   return (
     <div className="flex flex-col flex-1 min-h-screen">
@@ -20,17 +26,9 @@ function AdminLayout({ children }: { children: React.ReactNode }) {
         {/* Sidebar */}
         <Sidebar />
 
-        {/* Main content area */}
-        <div
-          className={`flex flex-1 justify-center lg:justify-start items-start mx-auto bg-slate-100 w-full ${
-            isHomePage ? "max-w-full" : "max-w-5xl"
-          }`}
-        >
-          {children}
-        </div>
+        {/* Delegate layout sizing to client component */}
+        <AdminContentWrapper>{children}</AdminContentWrapper>
       </div>
     </div>
   );
 }
-
-export default AdminLayout;
