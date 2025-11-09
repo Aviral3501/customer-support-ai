@@ -6,6 +6,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 import { GoogleGenAI } from "@google/genai";
 
+// ✅ Shared CORS headers
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
+// ✅ Handle preflight OPTIONS request
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders });
+}
+
+
+
 // ✅ Initialize new Gemini client
 const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
@@ -21,7 +35,7 @@ export async function POST(req: NextRequest) {
 
     const chatbot = data.chatbots;
     if (!chatbot)
-      return NextResponse.json({ error: "Chatbot not found" }, { status: 404 });
+      return NextResponse.json({ error: "Chatbot not found" }, { status: 404,headers:corsHeaders });
 
     // 2️⃣ Fetch previous messages
     const { data: messagesData } = await serverClient.query<MessagesByChatSessionIdResponse>({
@@ -141,7 +155,7 @@ const response = await genAI.models.generateContent({
     // console.log("Suggestions :::",suggestions)
 
     if (!aiResponse) {
-      return NextResponse.json({ error: "Failed to generate AI response" }, { status: 500 });
+      return NextResponse.json({ error: "Failed to generate AI response" }, { status: 500,headers:corsHeaders });
     }
 
     // 6️⃣ Save user message
@@ -163,10 +177,10 @@ const response = await genAI.models.generateContent({
       id: aiMessageResult.data.insertMessages.id,
       content: aiResponse,
       suggestions:suggestions
-    });
+    },{headers:corsHeaders});
   } catch (error) {
     console.error("❌ Error in /send-message", error);
-    return NextResponse.json({ error: String(error) }, { status: 500 });
+    return NextResponse.json({ error: String(error) }, { status: 500 ,headers:corsHeaders});
   }
 }
 
