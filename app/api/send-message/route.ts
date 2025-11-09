@@ -40,13 +40,15 @@ export async function POST(req: NextRequest) {
     }));
 
     // 4️⃣ Combine system prompt
-    const systemPrompt = chatbot.chatbot_characteristics.map((c) => c.content).join(" + ");
+    const systemPrompt = chatbot.chatbot_characteristics
+      .map((c) => c.content)
+      .join(" + ");
 
     const messages: ChatCompletionMessageParam[] = [
-        {
-          role: "system",
-          name: "system",
-          content: `
+      {
+        role: "system",
+        name: "system",
+        content: `
       You are **ConvoKit**, a polite and helpful AI assistant currently chatting with a user named "${name}".
       
       Your primary goal:
@@ -78,32 +80,65 @@ export async function POST(req: NextRequest) {
       
       ---
       
-      Now, continue the conversation naturally.
+
           `,
-        },
-        ...formattedPreviousMessages,
-        {
-          role: "user",
-          name,
-          content,
-        },
-      ];
+      },
+      ...formattedPreviousMessages,
+      {
+        role: "user",
+        name,
+        content,
+      },
+    ];
       
 
     const fullPrompt = messages.map((m) => `${m.role === "user" ? name : ""}: ${m.content}`).join("\n");
 
 
-    // 5️⃣ Get the response (✅ new SDK syntax)
-    const response = await genAI.models.generateContent({
-        model: "gemini-2.0-flash",
-      contents: fullPrompt,
-    });
+// 5️⃣ Get the response (✅ structured output with suggestions)
+const response = await genAI.models.generateContent({
+    model: "gemini-2.0-flash",
+    contents: `
+  ${fullPrompt}
+  
+  Now respond in the following strict JSON format only:
+  {
+    "answer": "<your main response to the user >",
+    "suggested_questions": [
+      "related question 1",
+      "related question 2",
+      "related question 3"
+    ]
+  }
+  `,
+  });
 
-    let aiResponse = response.text?.trim() || "";
-    // 🧹 Remove leading "AI:" or "AI :"
+    let rawText = response.text?.trim()||"";
+    rawText = rawText.replace(/```json|```/g, "").trim();
+    // console.log(rawText)
+
+    let aiResponse ="";
+
+    
+
+    let suggestions: string[] = [];
+    try {
+    
+      const parsed = JSON.parse(rawText);
+      console.log("parsed here ::",parsed)
+      aiResponse = parsed.answer || "";
+      suggestions = parsed.suggested_questions || [];
+    } catch {
+        console.log("in the fallback::::::");
+      aiResponse = rawText; // fallback
+      suggestions = [];
+    }
+    
+    // 🧹 Clean response
     aiResponse = aiResponse.replace(/^AI\s*:\s*/i, "").trim();
 
     // console.log("AII ;;;;;;;;;",aiResponse)
+    // console.log("Suggestions :::",suggestions)
 
     if (!aiResponse) {
       return NextResponse.json({ error: "Failed to generate AI response" }, { status: 500 });
@@ -123,10 +158,11 @@ export async function POST(req: NextRequest) {
 
     // console.log("AI MESSAGE RESULT ",aiMessageResult)
 
-    // 8️⃣ Return response
+    // 8️⃣ Return response with suggestions (faqs)
     return NextResponse.json({
       id: aiMessageResult.data.insertMessages.id,
       content: aiResponse,
+      suggestions:suggestions
     });
   } catch (error) {
     console.error("❌ Error in /send-message", error);
