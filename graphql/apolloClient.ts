@@ -1,3 +1,4 @@
+export const runtime = "nodejs"
 import {ApolloClient,DefaultOptions,InMemoryCache,createHttpLink} from "@apollo/client";
 // Client side ApolloClient
 

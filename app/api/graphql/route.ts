@@ -1,3 +1,4 @@
+export const runtime = "nodejs"
 import { serverClient } from "@/lib/server/serverClient";
 import { gql } from "@apollo/client";
 import { NextRequest, NextResponse } from "next/server";
