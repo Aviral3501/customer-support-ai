@@ -236,47 +236,45 @@ async function onSubmit( values : z.infer<typeof formSchema>){
 
         {/* All the messages  */}
 
-        <div className="w-full overflow-x-auto">
-      <Messages
-          messages={messages}
-          chatbotName={chatbotData?.chatbots.name!}
-        />
-      </div>
-      
+        {/* ✅ Messages section — fills available space */}
+        <div className="flex-1 overflow-y-auto">
+          <Messages
+            messages={messages}
+            chatbotName={chatbotData?.chatbots.name!}
+          />
+        </div>
+
         <Form {...form}>
-            <form
-            onSubmit={form.handleSubmit(onSubmit)} 
-            className="flex items-start sticky bottom-0 z-50 space-x-4 p-5 h-[5.5rem] bg-gray-100 rounded-md">
-                <FormField
-                  control={form.control}
-                  name="message"
-                  render={({field}) => (
-                    <FormItem className="flex-1">
-                        <FormLabel hidden>Message</FormLabel>
-                        <FormControl>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex items-start sticky bottom-0 z-50 space-x-4 p-5 h-[5.5rem] bg-gray-100 rounded-md"
+          >
+            <FormField
+              control={form.control}
+              name="message"
+              render={({ field }) => (
+                <FormItem className="flex-1">
+                  <FormLabel hidden>Message</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Type a message..."
+                      {...field}
+                      className="p-5"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
 
-                            <Input 
-                            placeholder="Type a message..."
-                            {...field}
-                            className="p-5"
-                            />
-
-
-                        </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <Button 
-                type="submit"
-                disabled={form.formState.isSubmitting || !form.formState.isValid}
-                className="h-full flex w-24 items-center justify-center">Send</Button>
-            </form>
-
+            <Button
+              type="submit"
+              disabled={form.formState.isSubmitting || !form.formState.isValid}
+              className="h-full flex w-24 items-center justify-center"
+            >
+              Send
+            </Button>
+          </form>
         </Form>
-
-
-
       </div>
     </div>
   );
