@@ -10,7 +10,10 @@ export const BASE_URL = process.env.NODE_ENV !== "development" ?
 // basicallyl we are giving an instructiosn and th eappolo client on the server side autheticates 
 // and we avoid using the proxy
 const httpLink = createHttpLink({
-    uri: `${BASE_URL}/api/graphql`, //point to the new api route
+    uri: `${BASE_URL}/api/graphql`, 
+    fetchOptions:{
+      mode:"cors"
+    }
 });
 
 // disable the caching in apollo client (client side)
