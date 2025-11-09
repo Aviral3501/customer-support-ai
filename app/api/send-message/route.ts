@@ -48,6 +48,8 @@ export async function POST(req: NextRequest) {
         name: "system",
         content: `You are a helpful assistant talking to ${name}.
         Only answer questions relevant to this key information:
+        Try to always answe in a good format - table , points , lists etc 
+        Prefer table if possible.
         ${systemPrompt}`,
       },
       ...formattedPreviousMessages,

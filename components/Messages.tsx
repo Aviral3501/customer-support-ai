@@ -2,7 +2,7 @@
 
 import { Message } from "@/types/types";
 import { usePathname } from "next/navigation";
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Avatar from "./Avatar";
 import { UserCircle } from "lucide-react";
 import ReactMarkdown from "react-markdown";
@@ -18,21 +18,15 @@ const Messages = ({
   const path = usePathname();
   const isReviewsPage = path.includes("review-sessions");
   const [mounted, setMounted] = useState(false);
-
   const ref = useRef<HTMLDivElement>(null);
 
-  // ✅ Ensures timestamps only render after client mount
+  // ✅ Ensure timestamps render only after hydration
+  useEffect(() => setMounted(true), []);
+
+  // ✅ Auto-scroll to bottom when messages update
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-//   auto scroll to the botton as the user types 
-  useEffect(()=>{
-    if(ref.current){
-        ref.current.scrollIntoView({behavior:"smooth"})
-    }
-
-  },[messages])
+    if (ref.current) ref.current.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   return (
     <div
@@ -43,7 +37,7 @@ const Messages = ({
         const isSender = message.sender !== "user";
         const timestamp = mounted
           ? new Date(message.created_at).toLocaleString()
-          : ""; // avoid mismatch before hydration
+          : "";
 
         return (
           <div
@@ -68,9 +62,9 @@ const Messages = ({
               </div>
             </div>
 
-            {/* Message bubble */}
+            {/* Message Bubble */}
             <div
-              className={`chat-bubble text-sm md:text-base leading-relaxed ${
+              className={`chat-bubble text-sm md:text-base leading-relaxed  whitespace-pre-wrap break-words ${
                 isSender
                   ? "chat-bubble-primary bg-[#4d7dfb] text-white"
                   : "chat-bubble-secondary bg-gray-200 text-black"
@@ -78,76 +72,63 @@ const Messages = ({
             >
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
+                // ✅ FIX: Explicit typing for code component props
                 components={{
-                  // Paragraphs
                   p: ({ node, ...props }) => (
                     <p
                       {...props}
-                      className={`break-words whitespace-break-spaces leading-relaxed mb-5 ${message.content ==="Thinking..." && "animate-pulse"} ${isSender?"text-white":"text-black"}`}
+                      className={`break-words whitespace-pre-wrap leading-relaxed mb-3 ${
+                        message.content === "Thinking..." && "animate-pulse"
+                      } ${isSender ? "text-white" : "text-black"}`}
                     />
                   ),
 
-                  // Headings
-                  h1: ({ node, ...props }) => (
-                    <h1
-                      {...props}
-                      className="text-2xl font-bold mb-5 text-gray-900"
-                    />
-                  ),
-                  h2: ({ node, ...props }) => (
-                    <h2
-                      {...props}
-                      className="text-xl font-semibold mb-5 text-gray-900"
-                    />
-                  ),
-                  h3: ({ node, ...props }) => (
-                    <h3
-                      {...props}
-                      className="text-lg font-semibold mb-5 text-gray-900"
-                    />
-                  ),
+                  code: (props: any) => {
+                    const { inline, className, children, ...rest } = props;
+                    return !inline ? (
+                      <pre className="overflow-x-auto bg-gray-800 text-gray-100 p-3 rounded-md mb-3 max-w-full">
+                        <code {...rest} className={className}>
+                          {children}
+                        </code>
+                      </pre>
+                    ) : (
+                      <code
+                        {...rest}
+                        className={`bg-gray-100 px-1 py-0.5 rounded ${
+                          isSender ? "text-white bg-[#4d7dfb]/30" : "text-black"
+                        }`}
+                      >
+                        {children}
+                      </code>
+                    );
+                  },
 
-                  // Lists
-                  ul: ({ node, ...props }) => (
-                    <ul
-                      {...props}
-                      className="list-disc break-words list-inside ml-5 mb-5 space-y-1"
-                    />
-                  ),
-                  ol: ({ node, ...props }) => (
-                    <ol
-                      {...props}
-                      className="list-decimal break-words list-inside ml-5 mb-5 space-y-1"
-                    />
-                  ),
-
-                  // Links
-                  a: ({ node, ...props }) => (
-                    <a
-                      {...props}
-                      className="font-bold break-words underline hover:text-blue-400"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    />
-                  ),
-
-                  // Tables
                   table: ({ node, ...props }) => (
-                    <table
-                      {...props}
-                      className="table-auto border-separate border-spacing-4 border-2 border-gray-300 mb-5 w-full"
-                    />
+                    <div className="overflow-x-auto mb-3">
+                      <table
+                        {...props}
+                        className="table-auto min-w-full border border-gray-300"
+                      />
+                    </div>
                   ),
                   th: ({ node, ...props }) => (
                     <th
                       {...props}
-                      className="px-3 py-2 bg-gray-100 font-semibold text-left underline"
+                      className="px-3 py-2 font-semibold text-left underline border-b"
                     />
                   ),
                   td: ({ node, ...props }) => (
                     <td
                       {...props}
-                      className="px-3 py-2 text-gray-700"
+                      className="px-3 py-2 text-gray-700 border-b"
+                    />
+                  ),
+                  a: ({ node, ...props }) => (
+                    <a
+                      {...props}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-bold break-words underline hover:text-blue-400"
                     />
                   ),
                 }}
@@ -167,6 +148,7 @@ const Messages = ({
         );
       })}
 
+      {/* Auto-scroll anchor */}
       <div ref={ref}></div>
     </div>
   );

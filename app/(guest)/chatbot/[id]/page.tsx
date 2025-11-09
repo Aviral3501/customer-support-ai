@@ -236,11 +236,12 @@ async function onSubmit( values : z.infer<typeof formSchema>){
 
         {/* All the messages  */}
 
-        <Messages
+        <div className="w-full overflow-x-auto">
+      <Messages
           messages={messages}
           chatbotName={chatbotData?.chatbots.name!}
         />
-
+      </div>
       
         <Form {...form}>
             <form
