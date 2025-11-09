@@ -1,4 +1,7 @@
 export const runtime = "nodejs"
+export const dynamic ="force-dynamic"
+
+
 import {ApolloClient,DefaultOptions,InMemoryCache,createHttpLink} from "@apollo/client";
 // Client side ApolloClient
 

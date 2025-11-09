@@ -1,4 +1,6 @@
 export const runtime = "nodejs"
+export const dynamic ="force-dynamic"
+
 import { INSERT_MESSAGE } from "@/graphql/mutations/mutations";
 import { GET_CHATBOT_BY_ID, GET_MESSAGES_BY_CHAT_SESSION_ID } from "@/graphql/queries/queries";
 import { serverClient } from "@/lib/server/serverClient";
