@@ -12,7 +12,7 @@ const Header = () => {
         <Avatar seed="loading sA" className="mr-2" />
 
         <div>
-          <h1 className="font-semibold text-black">Assistly</h1>
+          <h1 className="font-semibold text-black">ConvoKit</h1>
           <h2 className="text-sm mt-[2px] text-gray-600">
             Your Customizable AI Chat Agent
           </h2>

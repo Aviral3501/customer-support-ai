@@ -17,7 +17,7 @@ export default function Home() {
           className="text-5xl md:text-6xl font-extrabold text-gray-900 leading-tight"
         >
           Build Smart AI Chatbots with{" "}
-          <span className="text-[#2991EE]">Assistly</span>
+          <span className="text-[#2991EE]">ConvoKit</span>
         </motion.h1>
 
         <motion.p
@@ -26,7 +26,7 @@ export default function Home() {
           transition={{ delay: 0.2, duration: 0.6 }}
           className="mt-6 text-lg md:text-xl text-gray-600 max-w-3xl mx-auto"
         >
-          Assistly helps you create, train, and manage chatbots that talk just
+          ConvoKit helps you create, train, and manage chatbots that talk just
           like humans — without writing a single line of code.
         </motion.p>
 
@@ -55,7 +55,7 @@ export default function Home() {
       {/* ⚡ Features Section */}
       <section className="mt-32 px-6 md:px-16 lg:px-32 max-w-6xl">
         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-10">
-          Why Choose Assistly?
+          Why Choose ConvoKit?
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -103,7 +103,7 @@ export default function Home() {
             See Your Chatbot in Action
           </h2>
           <p className="text-gray-700 mb-6 max-w-3xl">
-            Test, train, and monitor your bot in real-time. With Assistly,
+            Test, train, and monitor your bot in real-time. With ConvoKit,
             you’re in control — customize behavior, tone, and intelligence to
             match your brand’s personality.
           </p>
@@ -118,7 +118,7 @@ export default function Home() {
       {/* 🧩 Footer */}
       <footer className="w-full py-8 bg-[#f1f7fe] mt-auto text-sm text-gray-500">
         <p>
-          © {new Date().getFullYear()} Assistly — Made with ❤️ by Aviral Singh
+          © {new Date().getFullYear()} ConvoKit — Made with ❤️ by Aviral Singh
         </p>
       </footer>
     </main>

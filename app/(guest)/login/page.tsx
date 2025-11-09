@@ -12,7 +12,7 @@ const LoginPage = () => {
             </div>
 
             <div className="text-center">
-                <h1 className="text-4xl">Assistly</h1>
+                <h1 className="text-4xl">ConvoKit</h1>
                 <h2 className="text-base font-light">
                     Your customizable AI support Agent
                 </h2>

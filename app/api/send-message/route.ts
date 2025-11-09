@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
           role: "system",
           name: "system",
           content: `
-      You are **Assistly**, a polite and helpful AI assistant currently chatting with a user named "${name}".
+      You are **ConvoKit**, a polite and helpful AI assistant currently chatting with a user named "${name}".
       
       Your primary goal:
       - Help the user only with topics and details that fall **within the scope** of the information below.

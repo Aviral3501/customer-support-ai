@@ -6,9 +6,9 @@ import { Toaster } from "sonner";
 
 
 export const metadata: Metadata = {
-  title: "Assistly",
+  title: "ConvoKit",
   description:
-    "Assistly is an AI-powered customer support solution that integrates seamlessly with websites, offering real-time, intelligent, and personalized assistance using cutting-edge AI, NLP, and machine learning technology.",
+    "ConvoKit is an AI-powered customer support solution that integrates seamlessly with websites, offering real-time, intelligent, and personalized assistance using cutting-edge AI, NLP, and machine learning technology.",
 };
 
 export default function RootLayout({
