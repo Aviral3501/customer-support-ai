@@ -31,6 +31,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod"
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import FAQSuggestions from "@/components/FAQSuggestions";
 
 const formSchema = z.object({
     message: z.string().min(2,"Your message is too short!"),
@@ -43,6 +44,8 @@ const ChatbotPage = ({ params: { id } }: { params: { id: string } }) => {
   const [chatId, setChatId] = useState(0);
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
+
+  const [suggestedQuestions,setSuggestedQuestions] = useState<string[]>([]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver:zodResolver(formSchema),
@@ -92,12 +95,19 @@ const ChatbotPage = ({ params: { id } }: { params: { id: string } }) => {
     setIsOpen(false);
   };
 
+  useEffect(()=>{
+    if(suggestedQuestions && suggestedQuestions.length>0){
+        console.log(suggestedQuestions);
+    }
+  },[suggestedQuestions])
+
 //   onsubmit function for the messages
 async function onSubmit( values : z.infer<typeof formSchema>){
     setLoading(true);
     const {message : formMessage} = values;
     const message = formMessage;
     form.reset();
+    setSuggestedQuestions([]);
 
     if(!name||!email){
         // fill the details in the modal
@@ -155,12 +165,20 @@ async function onSubmit( values : z.infer<typeof formSchema>){
         });
 
         const result =  await response.json();
+        console.log("this is result :",result);
 
         // update the ui
         // update thepreviosuly loading message with the response from AI
         setMessages((prevMessages)=>
         prevMessages.map((msg)=>
         msg.id === loadingMessage.id ? {...msg,content:result.content,id:result.id}:msg))
+
+        if (result.suggestions && result.suggestions.length > 0) {
+            setSuggestedQuestions(result.suggestions);
+          }
+
+        //   console.log(suggestedQuestions)
+          
 
     } catch (error) {
         console.error("Error in sendin the message:",error)
@@ -243,6 +261,15 @@ async function onSubmit( values : z.infer<typeof formSchema>){
             chatbotName={chatbotData?.chatbots.name!}
           />
         </div>
+
+        <FAQSuggestions
+          questions={suggestedQuestions}
+          onSelect={(q) => {
+            setSuggestedQuestions([]); // 🧹 clear old suggestions
+            form.setValue("message", q);
+            form.handleSubmit(onSubmit)(); // send it automatically
+          }}
+        />
 
         <Form {...form}>
           <form
