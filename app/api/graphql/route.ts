@@ -6,16 +6,19 @@ import { serverClient } from "@/lib/server/serverClient";
 import { gql } from "@apollo/client";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
-}
-
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*", // Change this to your specific domain in production
   "Access-Control-Allow-Methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  'Access-Control-Allow-Credentials': 'true',
 };
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders });
+}
+
+
 
 
 export async function POST(request: NextRequest) {
