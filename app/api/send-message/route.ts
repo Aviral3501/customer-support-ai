@@ -157,18 +157,22 @@ const response = await genAI.models.generateContent({
     // 🧹 Clean response
     aiResponse = aiResponse.replace(/^AI\s*:\s*/i, "").trim();
 
-    // console.log("AII ;;;;;;;;;",aiResponse)
+    console.log("AII ;;;;;;;;;",aiResponse)
     // console.log("Suggestions :::",suggestions)
 
     if (!aiResponse) {
       return NextResponse.json({ error: "Failed to generate AI response" }, { status: 500,headers:corsHeaders });
     }
 
+    console.log("content::::",content)
+
     // 6️⃣ Save user message
-    await serverClient.mutate({
+    const usermessageResult =await serverClient.mutate({
       mutation: INSERT_MESSAGE,
-      variables: { chat_session_id, content: aiResponse, sender: "ai", created_at: new Date().toISOString() }
+      variables: { chat_session_id, content, sender: "user", created_at: new Date().toISOString() }
     });
+
+    console.log("usermessageResult",usermessageResult)
 
     // 7️⃣ Save AI message
     const aiMessageResult = await serverClient.mutate({
@@ -176,7 +180,7 @@ const response = await genAI.models.generateContent({
       variables: { chat_session_id, content: aiResponse, sender: "ai", created_at: new Date().toISOString(), },
     });
 
-    // console.log("AI MESSAGE RESULT ",aiMessageResult)
+    console.log("AI MESSAGE RESULT ",aiMessageResult)
 
     // 8️⃣ Return response with suggestions (faqs)
     return NextResponse.json({
