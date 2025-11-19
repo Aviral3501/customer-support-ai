@@ -85,6 +85,8 @@ export async function POST(req: NextRequest) {
       
       ### 🧭 Response Style Guidelines
       - Always format answers cleanly using **tables**, **bullet points**, or **numbered lists** whenever possible.
+        Any comparasion or detailed information should only be given in the form of table.
+        Table format has the highest priority (if feasible and plausible).
       - Use **concise, structured**, and **friendly** language.
       - Be **helpful but factual** — never guess.
       - Add emojis sparingly where they make sense (e.g., ✨📊💡).
@@ -165,7 +167,7 @@ const response = await genAI.models.generateContent({
     // 6️⃣ Save user message
     await serverClient.mutate({
       mutation: INSERT_MESSAGE,
-      variables: { chat_session_id, content, sender: "user" },
+      variables: { chat_session_id, content: aiResponse, sender: "ai", created_at: new Date().toISOString() }
     });
 
     // 7️⃣ Save AI message

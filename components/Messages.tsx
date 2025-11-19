@@ -33,6 +33,7 @@ const Messages = ({
       className="flex-1 overflow-y-auto space-y-10 py-10 px-5 bg-white rounded-lg"
       suppressHydrationWarning
     >
+      {console.log(messages)as any}
       {messages.map((message) => {
         const isSender = message.sender !== "user";
         const timestamp = mounted
