@@ -9,7 +9,130 @@ import { NextRequest, NextResponse } from "next/server";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 import { GoogleGenAI } from "@google/genai";
 
-// ✅ Shared CORS headers
+// for encryption and rate limiting
+import fs from "fs";
+import path from "path";
+import crypto from "crypto";
+
+
+// //  Daily request limiter (50 requests per day)
+
+// const DAILY_LIMIT = 3;
+
+// let dailyRequestCount = 0;
+// let nextResetTime = getNextMidnight();
+
+// function getNextMidnight() {
+//   const now = new Date();
+//   const midnight = new Date();
+//   midnight.setHours(24, 0, 0, 0); // next 12:00 AM
+//   return midnight.getTime();
+// }
+
+// function checkDailyLimit() {
+//   const now = Date.now();
+
+//   // reset counter at midnight
+//   if (now >= nextResetTime) {
+//     dailyRequestCount = 0;
+//     nextResetTime = getNextMidnight();
+//   }
+
+//   if (dailyRequestCount >= DAILY_LIMIT) {
+//     return false;
+//   }
+
+//   dailyRequestCount++;
+//   return true;
+// }
+
+// ===== GLOBAL DAILY LIMITER =====
+
+const SECRET = process.env.LIMIT_SECRET!;
+const FILE_PATH = path.join(process.cwd(), ".next", "cache", "convokit-limit.dat");
+try {
+  fs.mkdirSync(path.dirname(FILE_PATH), { recursive: true });
+} catch {}
+
+const DAILY_LIMIT = 30; // dailylimit (global - not per user)
+
+function getKey() {
+  // create a 32-byte key from the secret
+  return crypto.createHash("sha256").update(SECRET).digest().subarray(0, 32);
+}
+
+function encrypt(data: string) {
+  const iv = crypto.randomBytes(16);
+  const key = getKey();
+
+  const cipher = crypto.createCipheriv("aes-256-cbc", key as crypto.CipherKey, iv);
+  let encrypted = cipher.update(data, "utf8", "hex");
+  encrypted += cipher.final("hex");
+
+  return iv.toString("hex") + ":" + encrypted;
+}
+
+function decrypt(data: string) {
+  const [ivHex, encrypted] = data.split(":");
+  const iv = Buffer.from(ivHex, "hex");
+  const key = getKey();
+
+  const decipher = crypto.createDecipheriv("aes-256-cbc", key as crypto.CipherKey, iv);
+  let decrypted = decipher.update(encrypted, "hex", "utf8");
+  decrypted += decipher.final("utf8");
+
+  return decrypted;
+}
+
+function getNextMidnight() {
+  const now = new Date();
+  const midnight = new Date();
+  midnight.setHours(24, 0, 0, 0);
+  return midnight.getTime();
+}
+
+function checkDailyLimit(): boolean {
+  let data;
+
+  try {
+    if (fs.existsSync(FILE_PATH)) {
+      const encrypted = fs.readFileSync(FILE_PATH, "utf8");
+      data = JSON.parse(decrypt(encrypted));
+    }
+  } catch {
+    data = null;
+  }
+
+  if (!data) {
+    data = { count: 0, resetAt: getNextMidnight() };
+  }
+
+  const now = Date.now();
+
+  if (now >= data.resetAt) {
+      data.count = 0;
+      data.resetAt = getNextMidnight();
+    }
+
+  console.log("GLOBAL COUNT:", data.count);
+
+  if (data.count >= DAILY_LIMIT) {
+    console.log("LIMIT HIT");
+    return false;
+  }
+
+
+  data.count += 1;
+
+  try {
+    fs.writeFileSync(FILE_PATH, encrypt(JSON.stringify(data)));
+  } catch {}
+
+  return true;
+}
+
+
+//  Shared CORS headers
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -17,18 +140,29 @@ const corsHeaders = {
   'Access-Control-Allow-Credentials': 'true',
 };
 
-// ✅ Handle preflight OPTIONS request
+//  Handle preflight OPTIONS request
 export async function OPTIONS() {
   return NextResponse.json({}, { headers: corsHeaders });
 }
 
 
 
-// ✅ Initialize new Gemini client
+// Initialize new Gemini client
 const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
 export async function POST(req: NextRequest) {
   const { chat_session_id, chatbot_id, content, name } = await req.json();
+
+ //  Daily usage protection
+  if (!checkDailyLimit()) {
+    return NextResponse.json(
+      {
+        error:
+          "I'm sorry, your free quota has been completed for today. Please upgrade your account",
+      },
+      { status: 429, headers: corsHeaders }
+    );
+  }
 
   try {
     // 1️⃣ Fetch the chatbot characteristics

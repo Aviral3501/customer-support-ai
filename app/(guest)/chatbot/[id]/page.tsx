@@ -32,6 +32,8 @@ import { useForm } from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod"
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import FAQSuggestions from "@/components/FAQSuggestions";
+import { toast } from "sonner";
+
 
 const formSchema = z.object({
     message: z.string().min(2,"Your message is too short!"),
@@ -166,6 +168,25 @@ async function onSubmit( values : z.infer<typeof formSchema>){
 
         const result =  await response.json();
         console.log("this is result :",result);
+
+        // 🚫 DAILY LIMIT HIT (429 from backend)
+        if (response.status === 429) {
+
+            toast.error("Free daily limit reached", {
+                description: result.error || "You have used all free messages. Please upgrade your plan.",
+                duration: 5000,
+            });
+
+            // remove the fake "Thinking..." AI message
+            setMessages((prevMessages)=>
+                prevMessages.filter((msg)=>msg.id !== loadingMessage.id)
+            );
+
+            setLoading(false);
+            return;
+        }
+
+        // ✅ Normal success flow
 
         // update the ui
         // update thepreviosuly loading message with the response from AI
